@@ -6,7 +6,10 @@ c=a-b
 print('resta de los numeros: ',a,'-',b,'=',c)
 c=a*b
 print('multiplicación de los numeros: ',c)
-c=a/b
-print('division de los numeros: ',a,'/',b,'=',c)
-c=a%b
-print('residuo de los numeros: ',a,'%',b,'=',c)
+if b==0:
+  print('no se puede dividir por cero')
+else:
+  c=a/b
+  print('division de los numeros: ',a,'/',b,'=',c)
+  c=a%b
+  print('residuo de los numeros: ',a,'%',b,'=',c)
