@@ -1,126 +1,233 @@
+from os import name
+from pathlib import Path
 import tkinter as Tk
-from tkinter.constants import BOTTOM, FALSE, LEFT, NW, RIGHT, TOP, TRUE
 from tkinter.font import BOLD
+from tkinter import Image, StringVar, ttk
+from tkinter.constants import BOTH, BOTTOM, FALSE, HORIZONTAL, LEFT, RIGHT, TOP, TRUE, VERTICAL, X, Y
+from tkinter.ttk import Frame
+from tkinter import Button, Pack, ttk
+import math
+import time
 
-def crearSensores(posXasignar, posYasignar, amplitud_rect_X, amplitud_rect_Y, canvaslocal):
-    posXSN1=posXasignar
-    posYSN1=posYasignar
-    amplitudX=amplitud_rect_X
-    amplitudY=amplitud_rect_Y
-    cajaSN1=canvaslocal.create_rectangle(posXSN1,posYSN1,posXSN1+(amplitudX),posYSN1+(amplitudY) ,fill='black')
-    posCajaSN1=canvaslocal.coords(cajaSN1)
-    posX1LEDSN1=float(posXSN1+(((posCajaSN1[2])-posXSN1)/3))
-    posY1LEDSN1=(posCajaSN1[3])-5
-    ledSN1=canvaslocal.create_oval(posXSN1+10,posYSN1+5, posX1LEDSN1,posY1LEDSN1, fill="red", outline='darkred')
-    posLEDSN1=canvaslocal.coords(ledSN1)
-    posXTextoSN1=(posLEDSN1[2]+((posCajaSN1[2]-posXSN1)*2/3)/2)
-    posYTextoSN1=posCajaSN1[1]+((posCajaSN1[3]-posCajaSN1[1])/2)
-    textoSN1=canvaslocal.create_text(posXTextoSN1,posYTextoSN1, anchor=Tk.CENTER, text='SN1', fill='white', font=('courier',18))
-    #SN2:
-    posXSN2=posCajaSN1[0]
-    posYSN2=posCajaSN1[3]+15
-    cajaSN2=canvaslocal.create_rectangle(posXSN2,posYSN2,posXSN2+(amplitudX),posYSN2+(amplitudY) ,fill='black')
-    posCajaSN2=canvaslocal.coords(cajaSN2)
-    posX1LEDSN2=float(posXSN2+(((posCajaSN2[2])-posXSN2)/3))
-    posY1LEDSN2=(posCajaSN2[3])-5
-    ledSN2=canvaslocal.create_oval(posXSN2+10,posYSN2+5, posX1LEDSN2,posY1LEDSN2, fill="red", outline='darkred')
-    posLEDSN2=canvaslocal.coords(ledSN2)
-    posXTextoSN2=(posLEDSN2[2]+((posCajaSN2[2]-posXSN2)*2/3)/2)
-    posYTextoSN2=posCajaSN2[1]+((posCajaSN2[3]-posCajaSN2[1])/2)
-    textoSN2=canvaslocal.create_text(posXTextoSN2,posYTextoSN2, anchor=Tk.CENTER, text='SN2', fill='white', font=('courier',18))
-        #SN3:
-    posXSN3=posCajaSN1[0]
-    posYSN3=posCajaSN2[3]+15
-    cajaSN3=canvaslocal.create_rectangle(posXSN3,posYSN3,posXSN3+(amplitudX),posYSN3+(amplitudY) ,fill='black')
-    posCajaSN3=canvaslocal.coords(cajaSN3)
-    posX1LEDSN3=float(posXSN3+(((posCajaSN3[2])-posXSN3)/3))
-    posY1LEDSN3=(posCajaSN3[3])-5
-    ledSN3=canvaslocal.create_oval(posXSN3+10,posYSN3+5, posX1LEDSN3,posY1LEDSN3, fill="red", outline='darkred')
-    posLEDSN3=canvaslocal.coords(ledSN3)
-    posXTextoSN3=(posLEDSN3[2]+((posCajaSN3[2]-posXSN3)*2/3)/2)
-    posYTextoSN3=posCajaSN3[1]+((posCajaSN3[3]-posCajaSN3[1])/2)
-    textoSN3=canvaslocal.create_text(posXTextoSN3,posYTextoSN3, anchor=Tk.CENTER, text='Svacio', fill='white', font=('courier',12))
-    sensoresCanvaslocal={
-        'cajaSN1':cajaSN1,
-        'cajaSN2':cajaSN2,
-        'cajaSN3':cajaSN3,
-        'ledSN1':ledSN1,
-        'ledSN2':ledSN2,
-        'ledSN3':ledSN3,
-        'ledSN1_color':canvaslocal.itemcget(ledSN1,'fill'),
-        'ledSN2_color':canvaslocal.itemcget(ledSN2,'fill'),
-        'ledSN3_color':canvaslocal.itemcget(ledSN3,'fill'),
-        'textoSN1':textoSN1,
-        'textoSN2':textoSN2,
-        'textoSN3':textoSN3,  
-    }
-    return sensoresCanvaslocal
+from classesCaldera import *
+from PIL import Image
 
-def crearST(pos_ST_X,pos_ST_Y, ampX, ampY, canvaslocal):
-    posX=pos_ST_X
-    posY=pos_ST_Y
-    amplitudX=posX+ampX
-    amplitudY=ampY
-    cajaST=canvaslocal.create_rectangle(posX, posY, amplitudX, posY+(amplitudY), fill='black')
+class Controlador:
+    def __init__(self):
 
-    posCajaST=canvaslocal.coords(cajaST)
-    cajaT_x1=posX+((posCajaST[2]-posX)*2/3)
-    cajaT_y1=posCajaST[3]-5
-    cajaT=canvaslocal.create_rectangle(posX+5, posY+5, cajaT_x1, cajaT_y1, fill='darkred')
-    posCajaT=canvaslocal.coords(cajaT)
-    cajaT_registro_x=posCajaT[0]+3
-    cajaT_registro_y=posCajaT[1]+((posCajaT[3]-posCajaT[1])/2)
-    cajaT_registro=canvaslocal.create_text(cajaT_registro_x,cajaT_registro_y, anchor=Tk.W, text='80°C', fill='yellow', font=('courier',14))
+        
+        self.estado1=1
+        self.estado2=2
+        self.estado3=3
+        self.estado4=4
+        self.estado0=0
 
-    cajaT_texto_x=(posCajaST[2])-5
-    cajaT_texto_y=cajaT_registro_y
-    cajaT_texto=canvaslocal.create_text(cajaT_texto_x, cajaT_texto_y, anchor=Tk.E, text='ST', fill='white', font=('courier',14))
+        self.estado_actual=1
+        self.entradaGlobal=0
+        self.salidaGlobal=0
+        self.tempGlobal=0
+
+    #label_boton_V1
+    #label_boton_V2
+    #label_boton_V3
+    #label_boton_caldera
+
+    #boton_V1
+    #boton_V2
+    #boton_V3
+    #boton_caldera 
+    #args: (self,canvas,entrada,t1,t2,t3,SN1,SN2,SN3,v1,v2,v3,c,el_sensor_T,el_temporizador,salida,label_boton_caldera,label_boton_V1,label_boton_V2,label_boton_V3,label_boton_V1_string)
+
+    def apagar_caldera(self,c,sensorT,label_boton_caldera):
+        c.set_name("C\napagada")
+        c.fill_rect='black'
+        c.fill_text='red'
+        label_boton_caldera.config(text='Caldera: apagada')
+        c.temp_inicio=c.temp_caldera
+        c.start_time=time.time()
+        c.dibujo_tkinter()
+        sensorT.dibujar()
+    def encender_caldera(self,c,sensorT,label_boton_caldera):
+        c.set_name("C\nencendida")
+        c.fill_rect='darkred'
+        c.fill_text='yellow'
+        label_boton_caldera.config(text='Caldera: encendida')
+        c.temp_inicio=c.temp_caldera
+        c.start_time=time.time()
+        c.dibujo_tkinter()
+        sensorT.dibujar()
+        
+
+    def cerrar_v1(self,canvaslocal,v1,label_boton_V1,label_boton_V1_string):
+        v1.estado='cerrada'
+        label_boton_V1_string.set('valvula1: cerrada')
+        label_boton_V1.config(text=label_boton_V1_string.get())
+        canvaslocal.itemconfig(v1.ecV1_estate,{"text":"(OFF)"})
+        canvaslocal.itemconfig(v1.figura1,{"fill":"black"})
+        canvaslocal.itemconfig(v1.figura2,{"fill":"black"})
+    def cerrar_v2(self,canvaslocal,v2,label_boton_V2,):
+        v2.estado='cerrada'
+        label_boton_V2.config(text='valvula 2: cerrada')
+        canvaslocal.itemconfig(v2.ecV1_estate,{"text":"(OFF)"})
+        canvaslocal.itemconfig(v2.figura1,{"fill":"black"})
+        canvaslocal.itemconfig(v2.figura2,{"fill":"black"})
+    def cerrar_v3(self,canvaslocal,v3,label_boton_V3):
+        v3.estado='cerrada'
+        label_boton_V3.config(text='valvula 3: cerrada')
+        canvaslocal.itemconfig(v3.ecV1_estate,{"text":"(OFF)"})
+        canvaslocal.itemconfig(v3.figura1,{"fill":"black"})
+        canvaslocal.itemconfig(v3.figura2,{"fill":"black"})
+
+    def abrir_v1(self,canvas,v1,label_boton_V1,label_boton_V1_string):
+        v1.estado='abierta'
+        label_boton_V1_string.set('valvula 1: abierta')
+        label_boton_V1.config(text=label_boton_V1_string.get())
+        canvas.itemconfig(v1.ecV1_estate,{"text":"(ON)"})
+        canvas.itemconfig(v1.figura1,{"fill":"lightblue"})
+        canvas.itemconfig(v1.figura2,{"fill":"lightblue"})
+    def abrir_v2(self,canvas,v2,label_boton_V2,):
+        v2.estado='abierta'
+        label_boton_V2.config(text='valvula 2: abierta')
+        canvas.itemconfig(v2.ecV1_estate,{"text":"(ON)"})
+        canvas.itemconfig(v2.figura1,{"fill":"lightblue"})
+        canvas.itemconfig(v2.figura2,{"fill":"lightblue"})
+
+    def abrir_v3(self,canvas,v3,label_boton_V3):
+        v3.estado='abierta'
+        label_boton_V3.config(text='valvula 3: abierta')
+        canvas.itemconfig(v3.ecV1_estate,{"text":"(ON)"})
+        canvas.itemconfig(v3.figura1,{"fill":"lightblue"})
+        canvas.itemconfig(v3.figura2,{"fill":"lightblue"})
     
-    STlocal={
-        "cajaST":cajaST,
-        "cajaT":cajaT,
-        "cajaT_registro":cajaT_registro,
-        "cajaT_texto":cajaT_texto,
-        "cajaT_registro_temperatura":canvaslocal.itemcget(cajaT_registro, 'text'),
-    }
-    return STlocal
 
-def crearStime(pos_ST_X,pos_ST_Y, ampX, ampY, canvaslocal):
-    posX=pos_ST_X
-    posY=pos_ST_Y
-    amplitudX=posX+ampX
-    amplitudY=ampY
-    cajaStime=canvaslocal.create_rectangle(posX, posY, amplitudX, posY+(amplitudY), fill='darkblue')
+    def estado1_T1(self,canvas,entrada,t1,t2,t3,SN1,SN2,SN3,v1,v2,v3,c,el_sensor_T,el_temporizador,salida,label_boton_caldera,label_boton_V1,label_boton_V2,label_boton_V3,label_boton_V1_string):
+        entradalocal=entrada
+        salidalocal=salida
 
-    posCajaStime=canvaslocal.coords(cajaStime)
-    cajaTime_x1=posX+((posCajaStime[2]-posX)*2/3)
-    cajaTime_y1=posCajaStime[3]-5
-    cajaTime=canvaslocal.create_rectangle(posX+5, posY+5, cajaTime_x1, cajaTime_y1, fill='black')
-    posCajaTime=canvaslocal.coords(cajaTime)
-    cajaTime_registro_x=posCajaTime[0]+3
-    cajaTime_registro_y=posCajaTime[1]+((posCajaTime[3]-posCajaTime[1])/2)
-    cajaTime_registro=canvaslocal.create_text(cajaTime_registro_x,cajaTime_registro_y, anchor=Tk.W, text='time', fill='yellow', font=('courier',14))
+        v1.estado='cerrada'
+        label_boton_V1_string.set('valvula1: cerrada')
+        label_boton_V1.config(text=label_boton_V1_string.get())
+        canvas.itemconfig(v1.ecV1_estate,{"text":"(OFF)"})
+        canvas.itemconfig(v1.figura1,{"fill":"black"})
+        canvas.itemconfig(v1.figura2,{"fill":"black"})
 
-    cajaTime_texto_x=(posCajaStime[2])-5
-    cajaTime_texto_y=cajaTime_registro_y
-    cajaTime_texto=canvaslocal.create_text(cajaTime_texto_x, cajaTime_texto_y, anchor=Tk.E, text='Temp', fill='white', font=('courier',14))
+        v2.estado='cerrada'
+        label_boton_V2.config(text='valvula 2: cerrada')
+        canvas.itemconfig(v2.ecV1_estate,{"text":"(OFF)"})
+        canvas.itemconfig(v2.figura1,{"fill":"black"})
+        canvas.itemconfig(v2.figura2,{"fill":"black"})
+
+        v3.estado='cerrada'
+        label_boton_V3.config(text='valvula 3: cerrada')
+        canvas.itemconfig(v3.ecV1_estate,{"text":"(OFF)"})
+        canvas.itemconfig(v3.figura1,{"fill":"black"})
+        canvas.itemconfig(v3.figura2,{"fill":"black"})
+
+        
+        if(c.name=="C\nencendida"):
+            #c.name="C\napagada"
+            c.set_name("C\napagada")
+            c.fill_rect='black'
+            c.fill_text='red'
+            label_boton_caldera.config(text='Caldera: apagada')
+            c.temp_inicio=c.temp_caldera
+            c.start_time=time.time()
+            c.dibujo_tkinter()
+            el_sensor_T.dibujar()
+        
+        el_sensor_T.dibujar()
+        el_temporizador.tiempo_cero=time.time()
+
+
+        contenido_total=t1.contenido+t2.contenido
+        if(t1.contenido<50):   
+            print("No hay suficiente producto en T1 para llegar al nivel 1 en la caldera(almenos 50%)")
+            entradalocal=0
+            salidalocal=0
+            return salidalocal
+        else:
+            if(contenido_total<92):
+                print('No hay suficiente producto en T2 para realizar el proceso.')
+                return salidalocal
+            else:
+                print('El proceso ha comenzado.')
+                print('Abriendo valvula 1 hasta llenar nivel 1...')
+                self.abrir_v1(canvas,v1,label_boton_V1,label_boton_V1_string)
+                SN1.actualizar(c.nivel_liquido)
+                while(SN1.nivel_liquido<SN1.nivel_sensor):
+                    SN1.actualizar(c.nivel_liquido)
+                    #####################################################################################################
+                self.cerrar_v1(canvas,v1,label_boton_V1,label_boton_V1_string)
+                print('nivel 1 de caldera alcanzado.')
+                entradalocal=1
+                return entradalocal
+
+    def estado2_condicional(self,canvas,entrada,t1,t2,t3,SN1,SN2,SN3,v1,v2,v3,c,el_sensor_T,el_temporizador,salida,label_boton_caldera,label_boton_V1,label_boton_V2,label_boton_V3,label_boton_V1_string):
+                entreadalocal=entrada
+                salidalocal=salida
+                print('Calentando producto por 5 segundos....') 
+                self.encender_caldera(c,el_sensor_T,label_boton_caldera)
+
+                def metodolocal():
+                    self.tempGlobal=el_sensor_T.temperatura
+                root.after(4900,metodolocal())
+                root.after(100,self.apagar_caldera(c,el_sensor_T,label_boton_caldera))
+                print('producto calentado por 5 sg,')
+                if(self.tempGlobal<80):
+                    print('la temperatura NO supero los 80 grados, vertiendo producto de T2...')
+                    entreadalocal=0
+                    return entreadalocal
+                else:
+                    print('la temperatura supero los 80 grados, producto terminado satisfactoriamente.')
+                    entradalocal=1
+                    return entradalocal
+
     
-    STimelocal={
-        "cajaST":cajaStime,
-        "cajaT":cajaTime,
-        "cajaT_registro":cajaTime_registro,
-        "cajaT_texto":cajaTime_texto,
-        "cajaT_registro_temperatura":canvaslocal.itemcget(cajaTime_registro, 'text'),
-    }
-    return STimelocal
+    def proceso_estados(self,canvas,entrada,t1,t2,t3,SN1,SN2,SN3,v1,v2,v3,c,el_sensor_T,el_temporizador,salida,label_boton_caldera,label_boton_V1,label_boton_V2,label_boton_V3,label_boton_V1_string):
+        self.entradaGlobal=self.estado1_T1(canvas,entrada,t1,t2,t3,SN1,SN2,SN3,v1,v2,v3,c,el_sensor_T,el_temporizador,salida,label_boton_caldera,label_boton_V1,label_boton_V2,label_boton_V3,label_boton_V1_string)
+        if(self.entradaGlobal==0):
+            print('se culmino el ciclo en el estado 0')
+          
+        else:
+            self.entradaGlobal=self.estado2_condicional(canvas,self.entradaGlobal,t1,t2,t3,SN1,SN2,SN3,v1,v2,v3,c,el_sensor_T,el_temporizador,salida,label_boton_caldera,label_boton_V1,label_boton_V2,label_boton_V3,label_boton_V1_string)
+            print('se culmino el ciclo en el estado 3')
+        
+    
 
-mainWindow=Tk.Tk()
-mainWindow.config(bg="blue")
-mainWindow.title("Planta proceso quimco")
-mainWindow.wm_title("Planta proceso quimico")
-mainWindow.geometry("1200x615")
+                
 
-framePrincipal=Tk.Frame(mainWindow)
+#sensorN2.actualizar(caldera.nivel_liquido)
+#   sensorN1.actualizar(caldera.nivel_liquido)
+#   sensorNvacio.actualizar(caldera.nivel_liquido)
+
+        
+
+
+
+
+
+
+#frame scrollbar:
+root=Tk.Tk()
+root.geometry("720x630")
+
+main_frame=Frame(root)
+main_frame.pack(fill=BOTH, expand=1)
+
+my_canvas=Tk.Canvas(main_frame)
+my_canvas.pack(side=TOP,fill=BOTH,expand=1)
+
+my_scrollbar=ttk.Scrollbar(main_frame, orient=HORIZONTAL, command=my_canvas.xview)
+my_scrollbar.pack(side=BOTTOM, fill=X)
+my_canvas.configure(xscrollcommand=my_scrollbar.set)
+my_canvas.bind('<Configure>', lambda e: my_canvas.configure(scrollregion = my_canvas.bbox(all)))
+
+second_frame=Frame(my_canvas)
+my_canvas.create_window((0,0), window=second_frame, anchor='nw')
+
+########################
+
+framePrincipal=Tk.Frame(second_frame)
 framePrincipal.config(bg="white")
 framePrincipal.config(bd=5)
 framePrincipal.pack(anchor=Tk.NW)
@@ -135,17 +242,16 @@ canvas.pack(anchor=Tk.NW)
 imgModelo=Tk.PhotoImage(file="plantaQuimicosModelo.gif")
 imagenModelo=canvas.create_image(0,0, anchor=Tk.NW, image=imgModelo)
 
-canvas.create_rectangle(101-88,430-110,219-88,510-110, fill='darkred')
-botonInicio=Tk.Button(canvas,text='iniciar',font=('courier',18))
-botonInicio.config(bg='darkred', activebackground='red', fg='yellow', bd=0)
-botonInicio.place(x=102-88, y=431-110, width=219-101-1, height=510-430-1)
+      #labels:
 
-ecCaldera_estate=canvas.create_text(329-88, 355-110, anchor=Tk.N, text='caldera\nencendida', font=('courier',14,BOLD), fill='red', justify='center')
 
-ecV1_estate=canvas.create_text(197-88, 290-110, anchor=Tk.E, text='(ON)', font=('courier',20,BOLD), fill='red')
-ecV2_estate=canvas.create_text(458-88, 291-110, anchor=Tk.W, text='(OFF)', font=('courier',20,BOLD), fill='red')
-ecV3_estate=canvas.create_text(456-88, 428-110, anchor=Tk.W, text='(OFF)', font=('courier',20,BOLD), fill='red')
 
+
+
+
+valvula1=Valvula(109-70,180-2,canvas,"cerrada",131,154,132,159,135,162,141,164,141,170,179,160,179,171,141,158,141,164,207,194,197,177,189,170,179,167)
+valvula2=Valvula(458-88, 291-110,canvas,"cerrada",337,159,334,164,332,166,325,167,325,162,286,174,286,161,325,176,325,167,261,194,270,178,281,169,286,167)
+valvula3=Valvula(456-88, 428-110,canvas,"cerrada",284,309,285,314,290,321,290,321, 290,315,331,330,329,316,291,330,290,321, 361,349,352,337,346,331,330,323)
 #frame Sensores:
 ##E4E4E4 defualt color canvas
 frameData=Tk.Frame(framePrincipal)
@@ -153,73 +259,213 @@ frameData.pack(side=RIGHT, fill='y')
 frameData.config(bd=5)
 frameData.config(relief="sunken")
 canvasSensores=Tk.Canvas(frameData, width=200, height=300)
-atributosCanvasSensores=canvasSensores.__getitem__('bg')
-frameData.config(bg=atributosCanvasSensores)
+bgCanvasSensores=canvasSensores.__getitem__('bg')
+frameData.config(bg=bgCanvasSensores)
 
+
+#copia1 sensores:
 #crear en canvas:
-arg_S_Canvas=crearSensores(0,195, 90,30, canvas)
-arg_ST_canvas=crearST(393,240,100,50,canvas)
-arg_Stime_canvas=crearStime(19,409,200,60,canvas)
+
+
+tanque1=Tanque('T1', 200,100, 68,54,180,138,canvas)
+tanque2=Tanque('T2', 200,100, 291,56,400,143,canvas)
+tanque3=Tanque('T3', 200,0, 301,365,483,453,canvas)
+caldera=Caldera('C\napagada', 300, 0, 161,210,318,299,30,canvas)
+
+sensor_T=Sensor_temperatura(caldera.temp_caldera,caldera.name,332,240,80,40,canvas)
+temporizador=Temporizador(19,409,219,469,canvas)
+
+sensorN2=Sensor_nivel('2',219,caldera.nivel_liquido,44,204,100,20,canvas)
+sensorN1=Sensor_nivel('1',258,caldera.nivel_liquido,44,243,100,20,canvas)
+sensorNvacio=Sensor_nivel('vacio',299,caldera.nivel_liquido,5,278,140,20,canvas)
+
+
+
+#menu botones:
+frame_menu_botones=Tk.Frame(canvas)
+menuBotones=canvas.create_window(0,480, anchor=Tk.NW, width=520, height=120, window=frame_menu_botones)
+frame_menu_botones.config()
+
+label_boton_V1_string=StringVar(frame_menu_botones)
+label_boton_V2_string=StringVar(frame_menu_botones)
+label_boton_V3_string=StringVar(frame_menu_botones)
+label_boton_caldera_string=StringVar(frame_menu_botones)
+label_boton_V1_string.set("valvula 1: cerrada")
+label_boton_V2_string.set('valvula 2: cerrada')
+label_boton_V3_string.set('valvula 3: cerrada')
+label_boton_caldera_string.set('Caldera: apagada')
+
+
+
+label_boton_V1=Tk.Label(frame_menu_botones, text=label_boton_V1_string.get(),font=('courier',12))
+label_boton_V2=Tk.Label(frame_menu_botones, text='valvula 2: cerrada', font=('courier',12))
+label_boton_V3=Tk.Label(frame_menu_botones, text='valvula 3: cerrada', font=('courier',12))
+label_boton_caldera=Tk.Label(frame_menu_botones, text='Caldera: apagada', font=('courier',12))
+
+
+def accion_boton_V1():
+
+    if(valvula1.estado=='abierta'):
+        valvula1.estado='cerrada'
+        label_boton_V1_string.set('valvula1: cerrada')
+        label_boton_V1.config(text=label_boton_V1_string.get())
+        canvas.itemconfig(valvula1.ecV1_estate,{"text":"(OFF)"})
+        canvas.itemconfig(valvula1.figura1,{"fill":"black"})
+        canvas.itemconfig(valvula1.figura2,{"fill":"black"})
+
+    else:
+        valvula1.estado='abierta'
+        label_boton_V1_string.set('valvula 1: abierta')
+        label_boton_V1.config(text=label_boton_V1_string.get())
+        canvas.itemconfig(valvula1.ecV1_estate,{"text":"(ON)"})
+        canvas.itemconfig(valvula1.figura1,{"fill":"lightblue"})
+        canvas.itemconfig(valvula1.figura2,{"fill":"lightblue"})
+
+def accion_boton_V2():
+    
+    if(valvula2.estado=='abierta'):
+        valvula2.estado='cerrada'
+        label_boton_V2.config(text='valvula 2: cerrada')
+        canvas.itemconfig(valvula2.ecV1_estate,{"text":"(OFF)"})
+        canvas.itemconfig(valvula2.figura1,{"fill":"black"})
+        canvas.itemconfig(valvula2.figura2,{"fill":"black"})
+    else:
+        valvula2.estado='abierta'
+        label_boton_V2.config(text='valvula 2: abierta')
+        canvas.itemconfig(valvula2.ecV1_estate,{"text":"(ON)"})
+        canvas.itemconfig(valvula2.figura1,{"fill":"lightblue"})
+        canvas.itemconfig(valvula2.figura2,{"fill":"lightblue"})
+
+def accion_boton_V3():
+    if(valvula3.estado=='abierta'):
+        valvula3.estado='cerrada'
+        label_boton_V3.config(text='valvula 3: cerrada')
+        canvas.itemconfig(valvula3.ecV1_estate,{"text":"(OFF)"})
+        canvas.itemconfig(valvula3.figura1,{"fill":"black"})
+        canvas.itemconfig(valvula3.figura2,{"fill":"black"})
+    else:
+        valvula3.estado='abierta'
+        label_boton_V3.config(text='valvula 3: abierta')
+        canvas.itemconfig(valvula3.ecV1_estate,{"text":"(ON)"})
+        canvas.itemconfig(valvula3.figura1,{"fill":"lightblue"})
+        canvas.itemconfig(valvula3.figura2,{"fill":"lightblue"})
+
+def accion_boton_Caldera():
+    if(caldera.name=="C\nencendida"):
+        label_boton_caldera.config(text='Caldera: apagada')
+        caldera.set_name("C\napagada")
+        caldera.fill_rect='black'
+        caldera.fill_text='red'
+        caldera.temp_inicio=caldera.temp_caldera
+        caldera.start_time=time.time()
+        caldera.dibujo_tkinter()
+        sensor_T.dibujar
+          
+    else:
+        label_boton_caldera.config(text='Caldera: encendida')
+        caldera.set_name("C\nencendida")
+        caldera.fill_rect='darkred'
+        caldera.fill_text='yellow'
+        caldera.temp_inicio=caldera.temp_caldera
+        caldera.start_time=time.time()
+        caldera.dibujo_tkinter()
+        sensor_T.dibujar
+        
+        
+    
+boton_V1=Tk.Button(frame_menu_botones, text='cambiar estado',font=('courier',9), command=accion_boton_V1)
+boton_V2=Tk.Button(frame_menu_botones, text='cambiar estado',font=('courier',9), command=accion_boton_V2)
+boton_V3=Tk.Button(frame_menu_botones, text='cambiar estado',font=('courier',9), command=accion_boton_V3)
+boton_caldera=Tk.Button(frame_menu_botones, text='cambiar estado',font=('courier',9), command=accion_boton_Caldera)
+
+label_boton_V1.grid(row=0, column=0)
+label_boton_V2.grid(row=1, column=0)
+label_boton_V3.grid(row=2, column=0)
+label_boton_caldera.grid(row=3, column=0)
+
+boton_V1.grid(row=0, column=1)
+boton_V2.grid(row=1, column=1)
+boton_V3.grid(row=2, column=1)
+boton_caldera.grid(row=3, column=1)
+
+
+
+
+
+
+
 #crear en canvasSensores:
-arg_S_canvasSensores=crearSensores(0,0, 125,25,canvasSensores)
+#frame Data:
 
-coordsSN3=canvasSensores.coords(arg_S_canvasSensores['cajaSN3'])
-arg_ST_canvasSensores=crearST(coordsSN3[0],coordsSN3[3]+15,100,30,canvasSensores)
 
-coordsST=canvasSensores.coords(arg_ST_canvasSensores['cajaST'])
-arg_Stime_canvasSen=crearStime(coordsST[0],coordsST[3]+15,150,30,canvasSensores)
 
-eLabelTitle=Tk.Label(frameData,text='TABLA DE DATOS', font=('courier',20))
-eLabelTitle.grid(row=0,column=0,)
 
-eLabelTitle2=Tk.Label(frameData,text='VALUE', font=('courier',20))
-eLabelTitle2.grid(row=0,column=1)
 
-eLabelV1=Tk.Label(frameData,text='  V1: estado valvula 1',font=('courier',16))
-eLabelV2=Tk.Label(frameData,text='  V2: estado valvula 2',font=('courier',16))
-eLabelV3=Tk.Label(frameData,text='  V3: estado valvula 3',font=('courier',16))
-eEstadoC=Tk.Label(frameData, text=' estado caldera ',font=('courier',16))
 
-eLabelV1.grid(row=1,column=0)
-eLabelV2.grid(row=2,column=0)
-eLabelV3.grid(row=3,column=0)
-eEstadoC.grid(row=4,column=0)
 
-eValueV1=Tk.Label(frameData,text='ON',font=('courier',16))
-eValueV2=Tk.Label(frameData,text='ON',font=('courier',16))
-eValueV3=Tk.Label(frameData,text='ON',font=('courier',16))
-eEstadoC_value=Tk.Label(frameData, text='encendida',font=('courier',16))
 
-eValueV1.grid(row=1,column=1)
-eValueV2.grid(row=2,column=1)
-eValueV3.grid(row=3,column=1)
-eEstadoC_value.grid(row=4,column=1)
 
-canvasSensores.grid(column=3, row=5, rowspan=14)
-canvasSensores_to_Data=[0,0]+[418,158]
 
-eLabelSN1=Tk.Label(frameData,text="SN1, sensor de nivel 1 ",font=('courier',16))
-eLabelSN2=Tk.Label(frameData,text="SN2, sensor de nivel 2",font=('courier',16))
-eLabelSN3=Tk.Label(frameData,text="SN3, sensor de nivel 3",font=('courier',16))
-eLabelST=Tk.Label(frameData,text="ST, sensor temperatura C",font=('courier',16))
-eLabelStime=Tk.Label(frameData,text="Stime, temporizador",font=('courier',16))
 
-eLabelSN1.grid(row=5,column=0)
-eLabelSN2.grid(row=6,column=0)
-eLabelSN3.grid(row=7,column=0)
-eLabelST.grid(row=8,column=0)
-eLabelStime.grid(row=9,column=0)
 
-eValueSN1=Tk.Label(frameData,text="Lleno",font=('courier',16))
-eValueSN2=Tk.Label(frameData,text="incompleto",font=('courier',16))
-eValueSN3=Tk.Label(frameData,text="incompleto",font=('courier',16))
-eT_value=Tk.Label(frameData,text="80 °C",font=('courier',16))
-eStime_value=Tk.Label(frameData,text="0 sg",font=('courier',16))
+boton_T1=Tk.Button(frame_menu_botones, text='adicionar a T1',font=('courier',9), command=tanque1.adicionar10())
+boton_T2=Tk.Button(frame_menu_botones, text='adicionar a T2',font=('courier',9), command=tanque2.adicionar10())
+boton_T3=Tk.Button(frame_menu_botones, text='sustraer a T3',font=('courier',9), command=tanque3.sustraer10())
+boton_T1.grid(row=0,column=3)
+boton_T2.grid(row=1,column=3)
+boton_T3.grid(row=2,column=3)
+#def motion(event):
+#    x, y = event.x, event.y
+#    print('{}, {}'.format(x, y))
+#root.bind('<Motion>', motion)
 
-eValueSN1.grid(row=5,column=1)
-eValueSN2.grid(row=6,column=1)
-eValueSN3.grid(row=7,column=1)
-eT_value.grid(row=8,column=1)
-eStime_value.grid(row=9,column=1)
 
-mainWindow.mainloop()
+
+
+def act_tiempo_and_reg_temp():
+    t_real=time.time()
+    caldera.calcular_temp(t_real)
+    sensor_T.temperatura=caldera.temp_caldera
+    sensor_T.dibujar()
+
+    temporizador.timer=time.time()-temporizador.tiempo_cero
+    temporizador.dibujar()
+   
+    root.after(1000,act_tiempo_and_reg_temp)
+
+act_tiempo_and_reg_temp()
+
+#def actualizar_tiempo():
+#    temporizador.timer=time.time()-temporizador.tiempo_cero
+#    temporizador.dibujar()
+#    root.after(1000,actualizar_tiempo)
+#actualizar_tiempo()
+
+def fisicaValvulas():
+    if(valvula1.estado=='abierta'):
+        if(tanque1.contenido!=0 and caldera.contenido!=caldera.capacidad):
+            tanque1.sustraer(1)
+            caldera.adicionar(1)
+    if(valvula2.estado=='abierta'):
+        if(tanque2.contenido!=0 and caldera.contenido!=caldera.capacidad):
+            tanque2.sustraer(1)
+            caldera.adicionar(1)
+    if(valvula3.estado=='abierta'):
+        if(caldera.contenido!=0 and tanque3.contenido!=tanque3.capacidad):
+            tanque3.adicionar(3)
+            caldera.sustraer(3)
+    sensorN2.actualizar(caldera.nivel_liquido)
+    sensorN1.actualizar(caldera.nivel_liquido)
+    sensorNvacio.actualizar(caldera.nivel_liquido)
+    root.after(200,fisicaValvulas)
+fisicaValvulas()
+maquina_estado=Controlador()
+
+def accion_botonInico():
+    maquina_estado.proceso_estados(canvas,0,tanque1,tanque2,tanque3,sensorN1,sensorN2,sensorNvacio,valvula1,valvula2,valvula3,caldera,sensor_T,temporizador,0,label_boton_caldera,label_boton_V1,label_boton_V2,label_boton_V3,label_boton_V1_string)
+
+botonInicio=Tk.Button(canvas,text='iniciar',font=('courier',18), command=accion_botonInico)
+botonInicio.config( activebackground='green', bd=10, font=('courier',18,BOLD))
+botonInicio.place(x=102-88, y=431-110, width=219-101-1, height=510-430-1)
+
+root.mainloop()
